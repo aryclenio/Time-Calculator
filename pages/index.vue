@@ -8,9 +8,7 @@
       flex-dir="column"
       justify-content="center"
     >
-      <CHeading text-align="center" mb="4">
-        ⚡️ Hello chakra-ui/vue
-      </CHeading>
+      <MainClock :time="getTime()" />
       <CFlex justify="center" direction="column" align="center">
         <CBox mb="3">
           <CIconButton
@@ -21,68 +19,7 @@
             } mode`"
             @click="toggleColorMode"
           />
-          <CButton
-            left-icon="info"
-            variant-color="blue"
-            @click="showToast"
-          >
-            Show Toast
-          </CButton>
         </CBox>
-        <CAvatarGroup>
-          <CAvatar
-            name="Evan You"
-            alt="Evan You"
-            src="https://pbs.twimg.com/profile_images/1206997998900850688/cTXTQiHm_400x400.jpg"
-          >
-            <CAvatarBadge size="1.0em" bg="green.500" />
-          </CAvatar>
-          <CAvatar
-            name="Jonathan Bakebwa"
-            alt="Jonathan Bakebwa"
-            src="https://res.cloudinary.com/xtellar/image/upload/v1572857445/me_zqos4e.jpg"
-          >
-            <CAvatarBadge size="1.0em" bg="green.500" />
-          </CAvatar>
-          <CAvatar
-            name="Segun Adebayo"
-            alt="Segun Adebayo"
-            src="https://pbs.twimg.com/profile_images/1169353373012897802/skPUWd6e_400x400.jpg"
-          >
-            <CAvatarBadge size="1.0em" bg="green.500" />
-          </CAvatar>
-          <CAvatar src="pop">
-            <CAvatarBadge size="1.0em" border-color="papayawhip" bg="tomato" />
-          </CAvatar>
-        </CAvatarGroup>
-        <CButton
-          left-icon="close"
-          variant-color="red"
-          mt="3"
-          @click="showModal = true"
-        >
-          Delete Account
-        </CButton>
-        <CModal :is-open="showModal">
-          <CModalOverlay />
-          <CModalContent>
-            <CModalHeader>Are you sure?</CModalHeader>
-            <CModalBody>Deleting user cannot be undone</CModalBody>
-            <CModalFooter>
-              <CButton @click="showModal = false">
-                Cancel
-              </CButton>
-              <CButton
-                margin-left="3"
-                variant-color="red"
-                @click="showModal = false"
-              >
-                Delete User
-              </CButton>
-            </CModalFooter>
-            <CModalCloseButton @click="showModal = false" />
-          </CModalContent>
-        </CModal>
       </CFlex>
     </CBox>
   </div>
@@ -91,40 +28,18 @@
 <script lang="js">
 import {
   CBox,
-  CButton,
-  CAvatarGroup,
-  CAvatar,
-  CAvatarBadge,
-  CModal,
-  CModalContent,
-  CModalOverlay,
-  CModalHeader,
-  CModalFooter,
-  CModalBody,
-  CModalCloseButton,
   CIconButton,
-  CFlex,
-  CHeading
+  CFlex
 } from '@chakra-ui/vue'
+import axios from 'axios'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'App',
   components: {
     CBox,
-    CButton,
-    CAvatarGroup,
-    CAvatar,
-    CAvatarBadge,
-    CModal,
-    CModalContent,
-    CModalOverlay,
-    CModalHeader,
-    CModalFooter,
-    CModalBody,
-    CModalCloseButton,
     CIconButton,
     CFlex,
-    CHeading
   },
   inject: ['$chakraColorMode', '$toggleColorMode'],
   data () {
@@ -153,6 +68,20 @@ export default {
       return this.$toggleColorMode
     }
   },
+  async created(){
+    const config = {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }
+    try {
+        const res = await axios.get("http://worldtimeapi.org/api/timezone/America/Fortaleza", config)
+        console.log(res.data)
+        this.setTime(this.$store.state.time, res.data.datetime)
+    }catch(err){
+      console.error(err)
+    }
+  },
   methods: {
     showToast () {
       this.$toast({
@@ -162,7 +91,11 @@ export default {
         duration: 10000,
         isClosable: true
       })
-    }
+    },
+    ...mapMutations({
+      getTime: 'time/getTime',
+      setTime: 'time/setTime'
+    }) 
   }
 }
 </script>
