@@ -1,6 +1,5 @@
 <template>
-  <Tutorial/>
-  <p>Implementing first component</p>
+  <Tutorial />
 </template>
 
 <script>
